@@ -20,5 +20,8 @@ COPY spider.py ./
 ENV tiebaCookies "BDUSS=xUMk9sRm5-QUNCSFQ0eFd0YzNUVW5pSG5MSlZ5RER0dzUzNXVqSFEyNkFncnBpSVFBQUFBJCQAAAAAAAAAAAEAAAArUb80tPO087ray6cAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAID1kmKA9ZJiaG; STOKEN=f3baa843a9331bbe0c1102d2df80a4e56e942a98d121f17469d3b9d0eb8bcff7;"
 ENV tiebaLogLevel 20
 
+# 设置时区
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' > /etc/timezone
+
 # Run
 CMD [ "python3", "spider.py" ]
