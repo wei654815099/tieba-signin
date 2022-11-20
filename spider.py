@@ -29,7 +29,9 @@ class TieBa:
         likeList = self.__getLikeList()
         for site in likeList:
             # 请求签到
-            rep = requests.post(self.signInUri, headers={"Cookie": self.cookies},data={
+            s = requests.session()
+            s.keep_alive = False
+            rep = s.post(self.signInUri, headers={"Cookie": self.cookies},data={
                 "ie":site["ie"],
                 "kw":site["kw"]
             })
