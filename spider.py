@@ -5,6 +5,8 @@ import requests
 import os
 import schedule
 import time
+import re
+
 
 class TieBa:
 
@@ -17,12 +19,26 @@ class TieBa:
         pass
 
     def __getLikeList(self) -> list:
-        session = HTMLSession()
-        rep = session.get(url=self.myLikeUri,headers={"Cookie": self.cookies})
         res = []
-        r = rep.html.find("table>tr>td:first-child>a")
-        for target in r:
-            res.append({"ie":"utf-8","kw":target.text})
+
+        session = HTMLSession()
+        rep = session.get(url=self.myLikeUri, headers={"Cookie": self.cookies})
+
+        # 判断page页数是否大于1
+        page = 1
+        pageArr = re.findall(
+            r'<a href="/f/like/mylike\?&pn=(.*?)">尾页</a>', rep.text)
+        if len(pageArr) >= 1:
+            page = int(pageArr[0])
+
+        for i in (1, page):
+            r = rep.html.find("table>tr>td:first-child>a")
+            for target in r:
+                res.append({"ie": "utf-8", "kw": target.text})
+            # 如果当前不是最后一页，获取下一页数据
+            if (i < page):
+                rep = session.get(url=self.myLikeUri+"?&pn="+str(i+1),
+                                  headers={"Cookie": self.cookies})
         return res
 
     def signIn(self):
@@ -31,9 +47,9 @@ class TieBa:
             # 请求签到
             s = requests.session()
             s.keep_alive = False
-            rep = s.post(self.signInUri, headers={"Cookie": self.cookies},data={
-                "ie":site["ie"],
-                "kw":site["kw"]
+            rep = s.post(self.signInUri, headers={"Cookie": self.cookies}, data={
+                "ie": site["ie"],
+                "kw": site["kw"]
             })
             # 解析返回结果
             try:
@@ -55,6 +71,7 @@ class TieBa:
             time.sleep(1)
         pass
 
+
 def main():
     env = os.environ
     cookies = env.get("tiebaCookies")
@@ -71,6 +88,7 @@ def main():
     # 初始化对象
     tieba = TieBa(cookies)
     tieba.signIn()
+
 
 if __name__ == "__main__":
     # 定时每天7点半签到
